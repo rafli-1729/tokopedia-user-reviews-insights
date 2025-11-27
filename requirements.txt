@@ -1,0 +1,16 @@
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+nltk
+pydantic
+beautifulsoup4
+lxml
+transformers
+torch
+sentencepiece
+bertopic
+umap-learn
+hdbscan
+streamlit
