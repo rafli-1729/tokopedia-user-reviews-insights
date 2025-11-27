@@ -8,7 +8,8 @@ pydantic
 beautifulsoup4
 lxml
 transformers
-torch
+tensorflow
+keras
 sentencepiece
 bertopic
 umap-learn
