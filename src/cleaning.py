@@ -47,24 +47,38 @@ def normalize_slang(text: str, slang_dict: dict) -> str:
     return " ".join(out)
 
 
-def fuzzy_normalize(text: str, fuzzy_targets: dict) -> str:
-    """
-    Apply fuzzy matching only on known noisy words (e.g., banget, lemot).
-    fuzzy_targets format:
-    {
-        "banget": ["bangett", "bangeet"],
-        "tolong": ["tolooong"]
-    }
-    """
+def fuzzy_normalize(text: str, fuzzy_targets: dict, whitelist: set) -> str:
     tokens = text.split()
     output = []
 
+    # Build noisy → canonical mapping
+    noisy_map = {}
+    for canonical, variations in fuzzy_targets.items():
+        for var in variations:
+            noisy_map[var] = canonical
+
     for t in tokens:
-        normalized = t
-        for canonical, variations in fuzzy_targets.items():
-            if fuzz.ratio(t, canonical) >= 85:
-                normalized = canonical
-                break
+        t_clean = t.lower()
+
+        # skip whitelist
+        if t_clean in whitelist:
+            output.append(t_clean)
+            continue
+
+        normalized = t_clean
+        best_score = 0
+        best_match = None
+
+        # fuzzy only to noisy variations
+        for noisy_var, canonical in noisy_map.items():
+            score = fuzz.ratio(t_clean, noisy_var)
+            if score > best_score:
+                best_score = score
+                best_match = canonical
+
+        if best_score >= 85:  # threshold aman
+            normalized = best_match
+
         output.append(normalized)
 
     return " ".join(output)
@@ -91,31 +105,4 @@ def drop_lowinfo(text: str) -> str:
         return ""
     if len(text.split()) < 2:
         return ""
-    return text
-
-
-# Full Cleaning Pipeline
-def clean_text(text: str,
-               slang: dict,
-               stopwords: List[str],
-               fuzzy_targets: dict
-) -> str:
-
-    if not isinstance(text, str):
-        return ""
-
-    text = remove_emoji(text)
-    text = normalize_laughter(text)
-    text = collapse_repeated_chars(text)
-    text = normalize_vowel_stretch(text)
-
-    text = remove_punctuation(text)
-    text = normalize_slang(text, slang)
-    text = fuzzy_normalize(text, fuzzy_targets)
-
-    text = remove_stopwords(text, stopwords)
-
-    text = " ".join(text.split())
-    text = drop_lowinfo(text)
-
     return text
