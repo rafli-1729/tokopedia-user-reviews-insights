@@ -19,3 +19,6 @@ env/
 # OS & IDE
 .DS_Store
 .vscode/
+
+# Progress tracking
+idea/
