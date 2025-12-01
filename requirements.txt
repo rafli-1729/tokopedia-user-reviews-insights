@@ -15,3 +15,5 @@ bertopic
 umap-learn
 hdbscan
 streamlit
+fuzzywuzzy
+rapidfuzz
