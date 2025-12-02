@@ -167,7 +167,7 @@ START
     - Normalize laughter
     - Map emojis to semantic tokens
  ↓
-[2] Check WHITELIST
+[3] Check WHITELIST
     ├─ Fix merged words via prefix/suffix rules
     ├─ If word is in whitelist → FINISH
     └─ If not → continue
