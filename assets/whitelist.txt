@@ -20687,6 +20687,7 @@ privatisasi
 prive
 privilese
 pro
+promo
 pro forma
 proaktif
 probabilitas
