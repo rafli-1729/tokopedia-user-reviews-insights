@@ -30,19 +30,56 @@ class CleaningPipeline:
 
     # ---------------------- BASIC HELPERS ---------------------- #
 
-    def _remove_email_and_link(
-        self, text: str, regex: str = r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"
-    ) -> str:
-        return re.sub(regex, " ", text)
+    def _is_known_word(self, word: str):
+        return (
+            word in self.whitelist
+            or word in self.slang.keys()
+            or word in self.typo.keys()
+            or word in self.negation_list
+            or word in self.pos_lexicon.keys()
+        )
+
+
+    def _canonical_of(self, word: str):
+        if word in self.slang:
+            return self.slang[word]
+
+        if word in self.typo:
+            return self.typo[word]
+
+        if word in self.negation_list:
+            return word
+
+        if word in self.whitelist:
+            return word
+
+        return word
+
+
+
+    def _remove_email_and_link(self, text: str):
+        pattern = (
+            r"https?://\S+"         # URL
+            r"|www\.\S+"            # www.
+            r"|[A-Za-z0-9._%+-]+@"  # email start
+            r"[A-Za-z0-9.-]+\.[A-Za-z]{2,}"   # domain akhir
+        )
+        return re.sub(pattern, " ", text)
+
 
     def _handle_word_number(self, text: str):
-        text = re.sub(r"(\d)([A-Za-z])", r"\1 \2", text)   # 2hari → 2 hari
-        text = re.sub(r"([A-Za-z])(\d)", r"\1 \2", text)   # hari2 → hari 2
+        text = re.sub(
+            r"(\d)?([A-Za-z]+)2\b",
+            lambda m: (m.group(1) or "") + m.group(2) + " " + m.group(2),
+            text
+        )
 
-        text = re.sub(r"\b([A-Za-z]+) 2\b", r"\1 \1", text)
-        text = re.sub(r"\b([A-Za-z]+) \d+\b", r"\1", text)
+        text = re.sub(r"\b([A-Za-z]+)\d+\b", r"\1", text)
+        text = re.sub(r"(\d)([A-Za-z])", r"\1 \2", text)
+        text = re.sub(r"([A-Za-z])(\d)", r"\1 \2", text)
 
         return text
+
 
     def _normalize_unicode(self, text: str) -> str:
         return unicodedata.normalize("NFKC", text)
@@ -95,14 +132,17 @@ class CleaningPipeline:
 
         return False
 
+
     def _normalize_laugh(self, word: str):
         w = word.lower()
-        if any(p in w for p in ["wk", "kw", "awok", "kekw", "ngak"]):
+        if any(p in w for p in ["wk", "awok", "kekw", "ngak"]):
             return "wkwk"
         return "haha"
 
+
     def _tokenize(self, text: str):
         return re.findall(r"\w+|[^\w\s]", text)
+
 
     def _normalize_laughter(self, text: str) -> str:
         toks = self._tokenize(text)
@@ -129,62 +169,110 @@ class CleaningPipeline:
         pattern = "[" + re.escape(string.punctuation) + "]"
         return re.sub(pattern, " ", text)
 
+
     def _reduce_to_two(self, word: str):
-        return re.sub(r"(.)\1{2,}", r"\1\1", word.lower())
+        return re.sub(r"(.)\1{2,}", r"\1\1", word)
+
 
     def _reduce_to_one(self, word: str):
-        return re.sub(r"(.)\1+", r"\1", word.lower())
+        return re.sub(r"(.)\1+", r"\1", word)
 
-    def _longest_prefix_whitelist(self, word: str):
-        w = word.lower()
-        for i in range(len(w), 2, -1):
-            pref = w[:i]
-            if pref in self.whitelist:
-                return pref
-        return None
+
+    def _normalize_stretch(self, word: str):
+        if word.isdigit():
+            return word
+
+        if word.startswith("[") and word.endswith("]"):
+            return word
+
+        original = word
+
+        step2 = self._reduce_to_two(word)
+        step1 = self._reduce_to_one(step2)
+
+        if step1 == original:
+            return word
+
+        if self._is_known_word(step1):
+            return self._canonical_of(step1)
+
+        return step1
+
+
+    def _stretch_all(self, t):
+        return " ".join(self._normalize_stretch(tok) for tok in t.split())
+
 
     def _should_segment(self, word: str):
         if re.search(r"(.)\1{2,}", word):
             return True
-        if any(x in word for x in ["ga", "gk", "pls"]):
-            return True
         if re.search(r"\d+[A-Za-z]", word):
             return True
+
+        if self._is_known_word(word):
+            return False
+
+        pref = self._longest_prefix(word)
+        if pref and pref != word:
+            return True
+
         return False
 
-    def _normalize_stretch(self, word: str):
-        if word.startswith("[") and word.endswith("]"):
-            return word
-
+    def _longest_prefix(self, word: str):
         w = word.lower()
-        original = w
+        for i in range(len(w), 1, -1):
+            pref = w[:i]
+            if self._is_known_word(pref):
+                return pref
 
-        step2 = self._reduce_to_two(w)
-        step1 = self._reduce_to_one(step2)
+        return word
 
-        if step1 == original:
+
+    def _split_compound_word(self, word: str):
+        w = self._normalize_stretch(word)
+
+        if not w.isalpha():
             return w
 
-        # Setelah ini baru coba mapping
-        if step1 in self.slang:
-            return self.slang[step1]
-        if step1 in self.typo:
-            return self.typo[step1]
-        if step1 in self.whitelist:
-            return step1
-        if step1 in self.negation_list:
-            return step1
+        if self._is_known_word(w):
+            return w
 
-        # prefix segmentation
-        if self._should_segment(w):
-            pref2 = self._longest_prefix_whitelist(step2)
-            if pref2:
-                return pref2
-            pref1 = self._longest_prefix_whitelist(step1)
-            if pref1:
-                return pref1
+        parts = [w]
+        changed = True
 
-        return step1
+        while changed:
+            changed = False
+            new_parts = []
+
+            for part in parts:
+                if len(part) == 1 and not self._is_known_word(part):
+                    continue
+
+                if not part.isalpha():
+                    new_parts.append(part)
+                    continue
+
+                pref = self._longest_prefix(part)
+                if pref and pref != part:
+                    suffix = part[len(pref):]
+
+                    new_parts.append(pref)
+                    new_parts.append(suffix)
+
+                    changed = True
+                else:
+                    new_parts.append(part)
+
+            parts = new_parts
+
+        return " ".join(parts)
+
+    def _handle_compound(self, text):
+        out = []
+        for t in text.split():
+            out.extend(self._split_compound_word(t).split())
+        return " ".join(out)
+
 
     # ---------------------- TYPO, SLANG, STOPWORDS ---------------------- #
 
@@ -232,11 +320,8 @@ class CleaningPipeline:
         text = step("Normalize Laughter", self._normalize_laughter, text)
         text = step("Map Emoji", self._map_emoji, text)
 
-        # stretch per-token
-        def stretch_all(t):
-            return " ".join(self._normalize_stretch(tok) for tok in t.split())
-        text = step("Normalize Stretch", stretch_all, text)
-
+        text = step("Normalize Stretch", self._stretch_all, text)
+        text = step("Split Compound Words", self._handle_compound, text)
         text = step("Normalize Typos", self._normalize_typos, text)
         text = step("Normalize Slang", self._normalize_slang, text)
         text = step("Remove Stopwords", self._remove_stopwords, text)
