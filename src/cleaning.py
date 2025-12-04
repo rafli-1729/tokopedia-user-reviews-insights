@@ -6,6 +6,9 @@ from typing import List, Dict, Set
 import unicodedata
 
 class CleaningPipeline:
+    emoji_placeholders = r"\[EMOJI_[A-Z]+\]"
+    invisible_char = r"[\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufe00-\ufe0f]"
+
     def __init__(
         self,
         slang_map: Dict[str, str],
@@ -304,6 +307,31 @@ class CleaningPipeline:
     def _normalize_whitespace(self, text: str):
         return " ".join(text.split())
 
+
+    def _remove_invisible(self, text: str) -> str:
+        if not isinstance(text, str):
+            return text
+        return re.sub(self.invisible_char, "", text)
+
+
+    def _collapse_emoji_placeholders(self, text: str, max_repeat: int = 2) -> str:
+        if not isinstance(text, str):
+            return text
+
+        text = self._remove_invisible(text)
+
+        pattern = rf"({self.emoji_placeholders})(\s+\1){{{max_repeat},}}"
+
+        def repl(m):
+            token = m.group(1)
+            return " ".join([token] * max_repeat)
+
+        text = re.sub(pattern, repl, text)
+
+        # rapikan spasi
+        text = " ".join(text.split())
+        return text
+
     # ---------------------- typo_map, slang_map, STOPWORDS ---------------------- #
 
     def explain(self, text: str, verbose=True):
@@ -328,6 +356,7 @@ class CleaningPipeline:
         text = step("Handle Word Number", self._handle_word_number, text)
         text = step("Normalize Laughter", self._normalize_laughter, text)
         text = step("Map Emoji", self._map_emoji, text)
+        text = step("Collapse Emoji Placeholders", self._collapse_emoji_placeholders, text)
 
         text = step("Normalize Stretch", self._stretch_all, text)
         text = step("Split Compound Words", self._handle_compound, text)
