@@ -2,7 +2,7 @@ import re
 import string
 from rapidfuzz import fuzz
 from fuzzywuzzy import process
-from typing import List
+from typing import List, Dict, Set
 import unicodedata
 
 class CleaningPipeline:
@@ -17,6 +17,7 @@ class CleaningPipeline:
         negation_list: List[str],
         stopwords: Set[str],
         pos_lexicon: Dict[str, str],
+        affix_map: Dict[str, str]
     ):
         self.slang = slang
         self.typo = typo
@@ -27,6 +28,7 @@ class CleaningPipeline:
         self.negation_list = set(negation_list)
         self.stopwords = set(stopwords)
         self.pos_lexicon = pos_lexicon
+        self.affix_map = affix_map
 
     # ---------------------- BASIC HELPERS ---------------------- #
 
@@ -37,6 +39,7 @@ class CleaningPipeline:
             or word in self.typo.keys()
             or word in self.negation_list
             or word in self.pos_lexicon.keys()
+            or word in self.affix_map.keys()
         )
 
 
@@ -54,7 +57,6 @@ class CleaningPipeline:
             return word
 
         return word
-
 
 
     def _remove_email_and_link(self, text: str):
@@ -109,7 +111,7 @@ class CleaningPipeline:
     # ---------------------- LAUGHTER DETECTION ---------------------- #
 
     def _is_laughter(self, word: str) -> bool:
-        w = word.lower()
+        w = self._normalize_stretch(word)
 
         if len(w) < 3:
             return False
@@ -193,8 +195,11 @@ class CleaningPipeline:
         if step1 == original:
             return word
 
-        if self._is_known_word(step1):
-            return self._canonical_of(step1)
+        if self._is_known_word(step2):
+            return step2
+
+        if self._is_known_word(original):
+            return original
 
         return step1
 
@@ -246,6 +251,7 @@ class CleaningPipeline:
 
             for part in parts:
                 if len(part) == 1 and not self._is_known_word(part):
+                    new_parts.append(part)
                     continue
 
                 if not part.isalpha():
@@ -253,19 +259,24 @@ class CleaningPipeline:
                     continue
 
                 pref = self._longest_prefix(part)
+
                 if pref and pref != part:
                     suffix = part[len(pref):]
 
-                    new_parts.append(pref)
-                    new_parts.append(suffix)
-
-                    changed = True
+                    # Split only if BOTH pieces are known words
+                    if self._is_known_word(pref) and self._is_known_word(suffix):
+                        new_parts.append(pref)
+                        new_parts.append(suffix)
+                        changed = True
+                    else:
+                        new_parts.append(part)
                 else:
                     new_parts.append(part)
 
             parts = new_parts
 
         return " ".join(parts)
+
 
     def _handle_compound(self, text):
         out = []
@@ -297,7 +308,7 @@ class CleaningPipeline:
 
     # ---------------------- TYPO, SLANG, STOPWORDS ---------------------- #
 
-    def explain(self, text: str):
+    def explain(self, text: str, verbose=True):
         original = text
         log = []
 
@@ -312,7 +323,7 @@ class CleaningPipeline:
             return out
 
         # ===== PIPELINE ORDER ===== #
-        text = step("Normalize Unicode", self._normalize_unicode, text)
+        text = step("Normalize Unicode", self._normalize_unicode, str(text))
         text = step("Lowercase", lambda x: x.lower(), text)
         text = step("Remove Links", self._remove_email_and_link, text)
         text = step("Remove Punctuation", self._remove_punctuation, text)
@@ -328,19 +339,20 @@ class CleaningPipeline:
         text = step("Normalize Whitespace", self._normalize_whitespace, text)
         text = step("Drop Lowinfo", self._drop_lowinfo, text)
 
-        # ===== PRINT RESULT ===== #
-        print("=== EXPLAIN CLEANING PIPELINE ===")
-        print("Input:", original)
-        print("---------------------------------")
-
-        if not log:
-            print("(No changes occurred — text is already normalized!)")
-            return text
-
-        for name, before, after in log:
-            print(f"[{name}]")
-            print(f"  before: {before}")
-            print(f"  after : {after}")
+        if verbose:
+            # ===== PRINT RESULT ===== #
+            print("=== EXPLAIN CLEANING PIPELINE ===")
+            print("Input:", original)
             print("---------------------------------")
+
+            if not log:
+                print("(No changes occurred — text is already normalized!)")
+                return text
+
+            for name, before, after in log:
+                print(f"[{name}]")
+                print(f"  before: {before}")
+                print(f"  after : {after}")
+                print("---------------------------------")
 
         return text
