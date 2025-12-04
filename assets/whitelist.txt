@@ -12887,7 +12887,7 @@ kirau
 kirbat
 kiri
 kirik
-kirim
+    kirim
 kirinyu
 kirip
 kiris
@@ -16526,6 +16526,7 @@ mendung
 mendur
 mendura
 mendut
+menerus
 menep
 menepaat
 mengah
@@ -19492,6 +19493,7 @@ penes
 penetrasi
 penetron
 penewu
+pengiriman
 penganak
 penganan
 pengang
@@ -20747,6 +20749,7 @@ prometium
 prominen
 prominensia
 promiskuitas
+promo
 promontorium
 promosi
 promotif
@@ -21498,7 +21501,7 @@ rayon
 rayonisasi
 rayu
 razia
-re
+respon
 reagen
 reagensia
 reak
@@ -24010,6 +24013,7 @@ setiawan
 setiga
 setik
 setin
+sesuai
 setinggi
 setip
 setir
