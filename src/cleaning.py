@@ -8,10 +8,9 @@ import unicodedata
 class CleaningPipeline:
     def __init__(
         self,
-        slang: Dict[str, str],
-        typo: Dict[str, str],
+        slang_map: Dict[str, str],
+        typo_map: Dict[str, str],
         whitelist: Set[str],
-        prefix_suffix: Dict[str, str],
         emoji_map: Dict[str, str],
         laughter_list: List[str],
         negation_list: List[str],
@@ -19,10 +18,9 @@ class CleaningPipeline:
         pos_lexicon: Dict[str, str],
         affix_map: Dict[str, str]
     ):
-        self.slang = slang
-        self.typo = typo
+        self.slang_map = slang_map
+        self.typo_map = typo_map
         self.whitelist = set(whitelist)
-        self.prefix_suffix = prefix_suffix
         self.emoji_map = emoji_map
         self.laughter_list = set(laughter_list)
         self.negation_list = set(negation_list)
@@ -35,8 +33,8 @@ class CleaningPipeline:
     def _is_known_word(self, word: str):
         return (
             word in self.whitelist
-            or word in self.slang.keys()
-            or word in self.typo.keys()
+            or word in self.slang_map.keys()
+            or word in self.typo_map.keys()
             or word in self.negation_list
             or word in self.pos_lexicon.keys()
             or word in self.affix_map.keys()
@@ -44,11 +42,11 @@ class CleaningPipeline:
 
 
     def _canonical_of(self, word: str):
-        if word in self.slang:
-            return self.slang[word]
+        if word in self.slang_map:
+            return self.slang_map[word]
 
-        if word in self.typo:
-            return self.typo[word]
+        if word in self.typo_map:
+            return self.typo_map[word]
 
         if word in self.negation_list:
             return word
@@ -115,7 +113,7 @@ class CleaningPipeline:
 
         if len(w) < 3:
             return False
-        if w in self.whitelist or w in self.slang:
+        if w in self.whitelist or w in self.slang_map:
             return False
         if w in self.laughter_list:
             return True
@@ -288,10 +286,10 @@ class CleaningPipeline:
     # ---------------------- TYPO, SLANG, STOPWORDS ---------------------- #
 
     def _normalize_typos(self, text: str) -> str:
-        return " ".join(self.typo.get(t, t) for t in text.split())
+        return " ".join(self.typo_map.get(t, t) for t in text.split())
 
     def _normalize_slang(self, text: str) -> str:
-        return " ".join(self.slang.get(t, t) for t in text.split())
+        return " ".join(self.slang_map.get(t, t) for t in text.split())
 
     def _remove_stopwords(self, text: str) -> str:
         return " ".join(t for t in text.split() if t not in self.stopwords)
@@ -306,7 +304,7 @@ class CleaningPipeline:
     def _normalize_whitespace(self, text: str):
         return " ".join(text.split())
 
-    # ---------------------- TYPO, SLANG, STOPWORDS ---------------------- #
+    # ---------------------- typo_map, slang_map, STOPWORDS ---------------------- #
 
     def explain(self, text: str, verbose=True):
         original = text
@@ -334,7 +332,7 @@ class CleaningPipeline:
         text = step("Normalize Stretch", self._stretch_all, text)
         text = step("Split Compound Words", self._handle_compound, text)
         text = step("Normalize Typos", self._normalize_typos, text)
-        text = step("Normalize Slang", self._normalize_slang, text)
+        text = step("Normalize slang_map", self._normalize_slang, text)
         text = step("Remove Stopwords", self._remove_stopwords, text)
         text = step("Normalize Whitespace", self._normalize_whitespace, text)
         text = step("Drop Lowinfo", self._drop_lowinfo, text)
