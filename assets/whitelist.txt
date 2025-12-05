@@ -1343,7 +1343,6 @@ arwana
 arya
 aryaduta
 arzak
-as
 asa
 asabat
 asabiah
@@ -2799,7 +2798,6 @@ betung
 betutu
 bewok
 bhayangkara
-bi
 biadab
 biadat
 biadi
@@ -3329,8 +3327,8 @@ brunai
 brutal
 brutalisme
 bruto
-bu
 bua tanah
+meninggal
 buah
 buai
 buak
@@ -3815,7 +3813,6 @@ cawangan
 cawat
 cawi
 cawis
-ce
 cebak
 ceban
 cebik
@@ -4178,7 +4175,6 @@ cetus
 ceuki
 cewang
 cewek
-ci
 ciak
 cialat
 ciap
@@ -4694,7 +4690,6 @@ dayuh
 dayuk
 dayung
 dayus
-de
 dealat
 deaneksasi
 debah
@@ -6299,7 +6294,6 @@ emulator
 emulsi
 emulsifikasi
 emut
-en
 enak
 enam
 enamel
@@ -6461,7 +6455,6 @@ enzimolisis
 enzimologi
 enzootik
 eolit
-eon
 eosen
 eosin
 eozoikum
@@ -6568,7 +6561,6 @@ erpak
 erti
 eru
 erupsi
-es
 esa
 esai
 esais
@@ -6842,7 +6834,6 @@ festival
 fetis
 fetor
 fetus
-fi
 fiasko
 fiat
 fiber
@@ -8416,7 +8407,6 @@ gros
 grosir
 grup
 gruwung
-gu
 gua
 gual
 guam
@@ -9285,7 +9275,6 @@ husnulkhatimah
 Hut
 hutan
 huyung
-ia
 ialah
 iambus
 iatrogenik
@@ -9358,7 +9347,6 @@ iga
 igal
 igau
 iglo
-ih
 ihdad
 ihram
 ihsan
@@ -10310,7 +10298,6 @@ jayeng
 jaz
 jazam
 jazirah
-Je
 jebab
 jebah
 jebai
@@ -10590,7 +10577,6 @@ jetis
 jetsam
 jetset
 jewer
-ji
 jiawang
 jib
 jibaku
@@ -12724,7 +12710,6 @@ khurafat
 khusuf
 khusus
 khusyuk
-ki
 kia
 kiah
 kiai
@@ -15638,6 +15623,9 @@ mabriuk
 mabrur
 mabuh
 mabuk
+marketplace
+shop
+cancel
 mabul
 macakal
 macam
@@ -16794,7 +16782,6 @@ mewek
 mezanin
 mezbah
 mezosopran
-mi
 miak
 miana
 miang
@@ -18286,7 +18273,6 @@ Olimpiade
 oliva
 olivin
 olok
-om
 om swastiastu
 oma
 ombak
@@ -19245,7 +19231,6 @@ payon
 payu
 payudara
 payung
-pe
 peang
 pecah
 pecah belah
@@ -19978,7 +19963,6 @@ pewat
 peyek
 peyorasi
 peyot
-pi
 piadah
 piagam
 piah
@@ -20501,6 +20485,7 @@ potong
 potret
 poundal
 poyang
+prakerja
 praanggapan
 praba
 prabu
@@ -20550,9 +20535,12 @@ pramukamar
 pramuniaga
 pramupintu
 pramuria
+gopay
+ongkirnya
 pramusaji
 pramusiwi
 pramutamu
+care
 pramuwisata
 pramuwisma
 pranala
@@ -20643,6 +20631,7 @@ presiden
 presidensial
 presidentil
 presidium
+lazada
 presiositas
 presipitasi
 presisi
@@ -21124,7 +21113,6 @@ qaf
 qari
 qariah
 qasar
-qi
 qiamulail
 qiraah
 qiraat
@@ -27473,7 +27461,6 @@ ugahari
 ugem
 uger
 ugut
-uh
 uhu
 uih
 uik
@@ -27541,7 +27528,6 @@ ulun
 ulung
 ulup
 ulur
-um
 uma
 uman
 umara
@@ -27834,7 +27820,6 @@ vasodilator
 vasomotor
 Vatikan
 vaucer
-ve
 veem
 vegetarian
 vegetarir
@@ -28162,7 +28147,6 @@ wayang
 wayuh
 wazari
 wazir
-we
 Weda
 wedam
 wedana
@@ -28353,7 +28337,6 @@ yaumulkiamah
 yaumulmahsyar
 yayasan
 yayu
-ye
 Yehova
 yel
 yen
@@ -28370,7 +28353,6 @@ yolk
 yos
 yosong
 yoyo
-yu
 yubileum
 yuda
 yudikatif
@@ -28393,7 +28375,6 @@ yuwana
 yuwaraja
 yuyitsu
 yuyu
-za
 zabah
 Zabaniah
 zabarjad

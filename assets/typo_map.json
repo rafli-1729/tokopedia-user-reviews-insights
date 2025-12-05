@@ -1,4 +1,5 @@
 {
+    "lt": "lantai",
     "ilunya": "ilmunya",
     "seler": "seller",
     "uninstal": "uninstall",
@@ -490,5 +491,11 @@
     "begotu": "begitu",
     "begity": "begitu",
     "begiti": "begitu",
-    "lmot": "lemot"
+    "lmot": "lemot",
+    "gopy": "gopay",
+    "gopai": "gopay",
+    "goapay": "gopay",
+    "gopaay": "gopay",
+    "fre": "gratis",
+    "expedisi": "ekspedisi"
 }
